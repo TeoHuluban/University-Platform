@@ -1,0 +1,2069 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema proiect
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema proiect
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `proiect` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `proiect` ;
+
+-- -----------------------------------------------------
+-- Table `proiect`.`cursuri`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`cursuri` (
+  `id_curs` INT NOT NULL AUTO_INCREMENT,
+  `denumire` VARCHAR(45) NULL DEFAULT NULL,
+  `descriere` VARCHAR(255) NULL DEFAULT NULL,
+  `nr_max_studenti` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_curs`),
+  UNIQUE INDEX `id_curs_UNIQUE` (`id_curs` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`autentificare`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`autentificare` (
+  `email` VARCHAR(45) NOT NULL,
+  `parola` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`email`),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`profesor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`profesor` (
+  `id_profesor` INT NOT NULL AUTO_INCREMENT,
+  `CNP` VARCHAR(45) NULL DEFAULT NULL,
+  `nume` VARCHAR(45) NULL DEFAULT NULL,
+  `prenume` VARCHAR(45) NULL DEFAULT NULL,
+  `adresa` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_tel` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_contract` VARCHAR(45) NULL DEFAULT NULL,
+  `IBAN` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_min_ore` INT NULL DEFAULT NULL,
+  `nr_max_ore` INT NULL DEFAULT NULL,
+  `departament` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_profesor`),
+  UNIQUE INDEX `id_profesor_UNIQUE` (`id_profesor` ASC) VISIBLE,
+  INDEX `email_prof_idx` (`email` ASC) VISIBLE,
+  CONSTRAINT `email_prof`
+    FOREIGN KEY (`email`)
+    REFERENCES `proiect`.`autentificare` (`email`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`activitati_curs`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`activitati_curs` (
+  `id_activitate` INT NOT NULL AUTO_INCREMENT,
+  `id_profesor` INT NULL DEFAULT NULL,
+  `id_curs` INT NULL DEFAULT NULL,
+  `tip_activitate` ENUM('Curs', 'Seminar', 'Laborator', 'Examen', 'Colocviu') NULL DEFAULT NULL,
+  `ziua` ENUM('luni', 'marti', 'miercuri', 'joi', 'vienri', 'sambata', 'duminca') NULL DEFAULT NULL,
+  `ora_inceput` TIME NULL DEFAULT NULL,
+  `ora_sfarsit` TIME NULL DEFAULT NULL,
+  `nr_max_participanti` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_activitate`),
+  UNIQUE INDEX `id_activitate_UNIQUE` (`id_activitate` ASC) VISIBLE,
+  INDEX `id_profesor_idx` (`id_profesor` ASC) VISIBLE,
+  INDEX `id_curs_idx` (`id_curs` ASC) VISIBLE,
+  INDEX `curs_idx` (`id_curs` ASC) VISIBLE,
+  CONSTRAINT `curs`
+    FOREIGN KEY (`id_curs`)
+    REFERENCES `proiect`.`cursuri` (`id_curs`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_profesor`
+    FOREIGN KEY (`id_profesor`)
+    REFERENCES `proiect`.`profesor` (`id_profesor`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 6
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`grupuri_studiu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`grupuri_studiu` (
+  `id_grup` INT NOT NULL AUTO_INCREMENT,
+  `id_curs` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_grup`),
+  UNIQUE INDEX `id_grup_UNIQUE` (`id_grup` ASC) VISIBLE,
+  INDEX `id_curs_idx` (`id_curs` ASC) VISIBLE,
+  CONSTRAINT `id_curs`
+    FOREIGN KEY (`id_curs`)
+    REFERENCES `proiect`.`cursuri` (`id_curs`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 6
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`activitati_grup`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`activitati_grup` (
+  `id_activitate` INT NOT NULL AUTO_INCREMENT,
+  `id_grup` INT NULL DEFAULT NULL,
+  `descriere` VARCHAR(45) NULL DEFAULT NULL,
+  `data` DATETIME NULL DEFAULT NULL,
+  `nr_min_participanti` INT NULL DEFAULT NULL,
+  `durata` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_activitate`),
+  UNIQUE INDEX `id_activitate_UNIQUE` (`id_activitate` ASC) VISIBLE,
+  INDEX `id_grup_idx` (`id_grup` ASC) VISIBLE,
+  CONSTRAINT `id_grup`
+    FOREIGN KEY (`id_grup`)
+    REFERENCES `proiect`.`grupuri_studiu` (`id_grup`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 8
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`administrator`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`administrator` (
+  `id_admin` INT NOT NULL AUTO_INCREMENT,
+  `CNP` VARCHAR(45) NULL DEFAULT NULL,
+  `nume` VARCHAR(45) NULL DEFAULT NULL,
+  `prenume` VARCHAR(45) NULL DEFAULT NULL,
+  `adresa` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_tel` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_contract` INT NULL DEFAULT NULL,
+  `IBAN` VARCHAR(45) NULL DEFAULT NULL,
+  `super_admin` TINYINT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_admin`),
+  UNIQUE INDEX `id_admin_UNIQUE` (`id_admin` ASC) VISIBLE,
+  INDEX `email_idx` (`email` ASC) VISIBLE,
+  CONSTRAINT `email`
+    FOREIGN KEY (`email`)
+    REFERENCES `proiect`.`autentificare` (`email`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 7
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`student`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`student` (
+  `id_student` INT NOT NULL AUTO_INCREMENT,
+  `CNP` VARCHAR(45) NULL DEFAULT NULL,
+  `nume` VARCHAR(45) NULL DEFAULT NULL,
+  `prenume` VARCHAR(45) NULL DEFAULT NULL,
+  `adresa` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_tel` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(45) NULL DEFAULT NULL,
+  `nr_contract` INT NULL DEFAULT NULL,
+  `IBAN` VARCHAR(45) NULL DEFAULT NULL,
+  `an_studiu` INT NULL DEFAULT NULL,
+  `nr_ore` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_student`),
+  UNIQUE INDEX `id_sudent_UNIQUE` (`id_student` ASC) VISIBLE,
+  INDEX `email_stud_idx` (`email` ASC) VISIBLE,
+  CONSTRAINT `email_stud`
+    FOREIGN KEY (`email`)
+    REFERENCES `proiect`.`autentificare` (`email`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`inrolare_activitati`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`inrolare_activitati` (
+  `id_inrolare_activitati` INT NOT NULL AUTO_INCREMENT,
+  `id_activitate` INT NULL DEFAULT NULL,
+  `id_student` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_inrolare_activitati`),
+  UNIQUE INDEX `id_inrolare_activitati_UNIQUE` (`id_inrolare_activitati` ASC) VISIBLE,
+  INDEX `id_activitate_idx` (`id_activitate` ASC) VISIBLE,
+  INDEX `id_student_activitate_idx` (`id_student` ASC) VISIBLE,
+  CONSTRAINT `id_activitate`
+    FOREIGN KEY (`id_activitate`)
+    REFERENCES `proiect`.`activitati_curs` (`id_activitate`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_student_activitate`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 23
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`inrolare_activitati_grup`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`inrolare_activitati_grup` (
+  `id_inrolare` INT NOT NULL AUTO_INCREMENT,
+  `id_student` INT NULL DEFAULT NULL,
+  `id_activitate` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_inrolare`),
+  UNIQUE INDEX `id_inrolare_UNIQUE` (`id_inrolare` ASC) VISIBLE,
+  INDEX `id_stud_actv_idx` (`id_student` ASC) VISIBLE,
+  INDEX `id_activitate_idx` (`id_activitate` ASC) VISIBLE,
+  INDEX `activitate_idx` (`id_activitate` ASC) VISIBLE,
+  CONSTRAINT `activitate`
+    FOREIGN KEY (`id_activitate`)
+    REFERENCES `proiect`.`activitati_grup` (`id_activitate`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_stud_actv`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 25
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`inrolari_curs`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`inrolari_curs` (
+  `id_inrolare` INT NOT NULL AUTO_INCREMENT,
+  `id_student` INT NULL DEFAULT NULL,
+  `id_profesor` INT NULL DEFAULT NULL,
+  `id_curs` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_inrolare`),
+  UNIQUE INDEX `id_inrolare_UNIQUE` (`id_inrolare` ASC) VISIBLE,
+  INDEX `id_curs1_idx` (`id_curs` ASC) VISIBLE,
+  INDEX `id_prof_idx` (`id_profesor` ASC) VISIBLE,
+  INDEX `id_student_idx` (`id_student` ASC) VISIBLE,
+  CONSTRAINT `id_curs1`
+    FOREIGN KEY (`id_curs`)
+    REFERENCES `proiect`.`cursuri` (`id_curs`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_prof`
+    FOREIGN KEY (`id_profesor`)
+    REFERENCES `proiect`.`profesor` (`id_profesor`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_student`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 82
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`inrolari_grup`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`inrolari_grup` (
+  `id_inrolare` INT NOT NULL AUTO_INCREMENT,
+  `id_student` INT NULL DEFAULT NULL,
+  `id_grup` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_inrolare`),
+  UNIQUE INDEX `id_inrolare_UNIQUE` (`id_inrolare` ASC) VISIBLE,
+  INDEX `id_grup2_idx` (`id_grup` ASC) VISIBLE,
+  INDEX `id_student2_idx` (`id_student` ASC) VISIBLE,
+  CONSTRAINT `id_grup2`
+    FOREIGN KEY (`id_grup`)
+    REFERENCES `proiect`.`grupuri_studiu` (`id_grup`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_student2`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 7
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`mesaje`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`mesaje` (
+  `id_mesaj` INT NOT NULL AUTO_INCREMENT,
+  `id_grup` INT NULL DEFAULT NULL,
+  `id_student` INT NULL DEFAULT NULL,
+  `mesaj` VARCHAR(255) NULL DEFAULT NULL,
+  `data` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`id_mesaj`),
+  UNIQUE INDEX `id_mesaj_UNIQUE` (`id_mesaj` ASC) VISIBLE,
+  INDEX `id_grup_msj_idx` (`id_grup` ASC) VISIBLE,
+  INDEX `id_student_msj_idx` (`id_student` ASC) VISIBLE,
+  CONSTRAINT `id_grup_msj`
+    FOREIGN KEY (`id_grup`)
+    REFERENCES `proiect`.`grupuri_studiu` (`id_grup`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_student_msj`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 7
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`note`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`note` (
+  `id_note` INT NOT NULL AUTO_INCREMENT,
+  `id_student` INT NULL DEFAULT NULL,
+  `id_curs` INT NULL DEFAULT NULL,
+  `nota_curs` INT NULL DEFAULT NULL,
+  `nota_seminar` INT NULL DEFAULT NULL,
+  `nota_laborator` INT NULL DEFAULT NULL,
+  `nota_finala` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_note`),
+  UNIQUE INDEX `id_note_UNIQUE` (`id_note` ASC) VISIBLE,
+  INDEX `id_student_note_idx` (`id_student` ASC) VISIBLE,
+  INDEX `id_curs_note_idx` (`id_curs` ASC) VISIBLE,
+  CONSTRAINT `id_curs_note`
+    FOREIGN KEY (`id_curs`)
+    REFERENCES `proiect`.`cursuri` (`id_curs`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_student_note`
+    FOREIGN KEY (`id_student`)
+    REFERENCES `proiect`.`student` (`id_student`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 14
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `proiect`.`predare`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `proiect`.`predare` (
+  `id_predare` INT NOT NULL AUTO_INCREMENT,
+  `id_profesor` INT NULL DEFAULT NULL,
+  `id_curs` INT NULL DEFAULT NULL,
+  `nr_studenti` INT NULL DEFAULT NULL,
+  `curs` TINYINT NULL DEFAULT NULL,
+  `seminar` TINYINT NULL DEFAULT NULL,
+  `laborator` TINYINT NULL DEFAULT NULL,
+  `procentaj_curs` INT NULL DEFAULT NULL,
+  `procentaj_seminar` INT NULL DEFAULT NULL,
+  `procentaj_laborator` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id_predare`),
+  UNIQUE INDEX `id_predare_UNIQUE` (`id_predare` ASC) VISIBLE,
+  INDEX `id_prof_predare_idx` (`id_profesor` ASC) VISIBLE,
+  INDEX `id_curs_predare_idx` (`id_curs` ASC) VISIBLE,
+  CONSTRAINT `id_curs_predare`
+    FOREIGN KEY (`id_curs`)
+    REFERENCES `proiect`.`cursuri` (`id_curs`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id_prof_predare`
+    FOREIGN KEY (`id_profesor`)
+    REFERENCES `proiect`.`profesor` (`id_profesor`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 16
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+USE `proiect` ;
+
+-- -----------------------------------------------------
+-- procedure AdaugaActivitateCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugaActivitateCurs`(
+    IN p_email_profesor VARCHAR(45),
+    IN p_denumire_curs VARCHAR(45),
+    IN p_tip_activitate ENUM('Curs', 'Seminar', 'Laborator', 'Examen', 'Colocviu'),
+    IN p_ora_inceput TIME,
+    IN p_ora_sfarsit TIME,
+    IN p_nr_max_participanti INT,
+    IN p_ziua VARCHAR(45)
+)
+BEGIN
+    DECLARE v_id_profesor INT;
+    DECLARE v_id_curs INT;
+
+    -- Obține ID-ul profesorului folosind adresa de email
+    SELECT id_profesor INTO v_id_profesor
+    FROM profesor
+    WHERE email = p_email_profesor;
+
+    -- Obține ID-ul cursului folosind denumirea cursului
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_denumire_curs;
+
+	
+	IF (v_id_curs IS NOT NULL) THEN
+    IF(SELECT id_predare FROM predare pr WHERE pr.id_curs = v_id_curs AND pr.id_profesor = v_id_profesor IS NOT NULL) THEN
+    -- Adaugă activitatea în tabela activitati_curs
+    INSERT INTO activitati_curs (id_profesor, id_curs, tip_activitate, ora_inceput, ora_sfarsit, nr_max_participanti, ziua)
+    VALUES (v_id_profesor, v_id_curs, p_tip_activitate, p_ora_inceput, p_ora_sfarsit, p_nr_max_participanti, p_ziua);
+    SELECT "Adaugare reusita!";
+    ELSE
+		SELECT "Nu predati acest curs!";
+	END IF;
+    ELSE 
+		SELECT "Cursul nu exista!";
+    END IF;
+    
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AdaugaMesaj
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugaMesaj`(
+    IN p_mesaj VARCHAR(255),
+    IN p_email_student VARCHAR(45),
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    DECLARE p_id_grup INT;
+    DECLARE p_id_student INT;
+
+    -- Obține id-ul studentului pe baza email-ului furnizat
+    SELECT id_student INTO p_id_student
+    FROM student
+    WHERE email = p_email_student;
+
+    -- Obține id-ul grupului pe baza numelui cursului
+    SELECT id_grup INTO p_id_grup
+    FROM grupuri_studiu gs
+    JOIN cursuri c ON gs.id_curs = c.id_curs
+    WHERE c.denumire = p_nume_curs;
+
+    -- Verifică dacă grupul există
+    IF p_id_grup IS NOT NULL THEN
+        -- Adaugă mesajul în tabelul `mesaje`
+        INSERT INTO mesaje (id_grup, id_student, mesaj, data)
+        VALUES (p_id_grup, p_id_student, p_mesaj, NOW());
+
+        SELECT 'Mesaj adăugat cu succes!' AS rezultat;
+    ELSE
+        SELECT 'Eroare: Grupul pentru cursul dat nu există.' AS rezultat;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AdaugaProcentaj
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugaProcentaj`(
+    IN p_nume_curs VARCHAR(255),
+    IN p_email_profesor VARCHAR(255),
+    IN p_procentaj_curs INT,
+    IN p_procentaj_seminar INT,
+    IN p_procentaj_laborator INT
+)
+BEGIN
+    DECLARE v_id_curs, v_id_profesor INT;
+
+    -- Obținem ID-ul cursului folosind denumirea
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs;
+
+    -- Obținem ID-ul profesorului folosind emailul
+    SELECT id_profesor INTO v_id_profesor
+    FROM profesor
+    WHERE email = p_email_profesor;
+
+    -- Verificăm dacă profesorul predă materia
+    IF v_id_curs IS NOT NULL AND v_id_profesor IS NOT NULL THEN
+        IF EXISTS (
+            SELECT 1
+            FROM predare
+            WHERE id_curs = v_id_curs AND id_profesor = v_id_profesor
+        ) THEN
+            -- Profesorul predă materia, actualizăm procentajele
+            UPDATE predare
+            SET
+                procentaj_curs = p_procentaj_curs,
+                procentaj_seminar = p_procentaj_seminar,
+                procentaj_laborator = p_procentaj_laborator
+            WHERE id_curs = v_id_curs AND id_profesor = v_id_profesor;
+
+            SELECT 'Procentajele au fost actualizate cu succes.';
+        ELSE
+            SELECT 'Profesorul nu predă cursul specificat.';
+        END IF;
+    ELSE
+        SELECT 'Cursul nu există.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AdaugareAdministrator
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugareAdministrator`(
+    IN p_email VARCHAR(45),
+    IN p_parola VARCHAR(45),
+    IN p_cnp VARCHAR(45),
+    IN p_nume VARCHAR(45),
+    IN p_prenume VARCHAR(45),
+    IN p_adresa VARCHAR(45),
+    IN p_nr_tel VARCHAR(45),
+    IN p_nr_contract INT,
+    IN p_IBAN VARCHAR(45),
+    IN p_super_admin TINYINT
+)
+BEGIN
+	DECLARE admin_count INT;
+
+    SELECT COUNT(*) INTO admin_count
+    FROM administrator
+    WHERE email = p_email;
+
+    IF admin_count = 0 THEN
+    INSERT INTO proiect.autentificare (email, parola) VALUES (p_email, p_parola);
+
+    INSERT INTO proiect.administrator (CNP, email, nume, prenume, adresa, nr_tel, IBAN, nr_contract, super_admin)
+    VALUES (p_cnp, p_email, p_nume, p_prenume, p_adresa, p_nr_tel, p_IBAN, p_nr_contract, p_super_admin);
+    ELSE
+        SELECT -1;
+    END IF;
+        
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AdaugareProfesor
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugareProfesor`(
+    IN p_email VARCHAR(45),
+    IN p_parola VARCHAR(45),
+    IN p_cnp VARCHAR(45),
+    IN p_nume VARCHAR(45),
+    IN p_prenume VARCHAR(45),
+    IN p_adresa VARCHAR(45),
+    IN p_nr_tel VARCHAR(45),
+    IN p_nr_contract INT,
+    IN p_IBAN VARCHAR(45),
+    IN p_nr_min_ore INT,
+    IN p_nr_max_ore INT,
+    IN p_departament VARCHAR(45)
+)
+BEGIN
+    DECLARE prof_count INT;
+
+    SELECT COUNT(*) INTO prof_count
+    FROM profesor
+    WHERE email = p_email;
+
+    IF prof_count = 0 THEN
+    INSERT INTO proiect.autentificare (email, parola) VALUES (p_email, p_parola);
+
+    INSERT INTO proiect.profesor (email, CNP, nume, prenume, adresa, nr_tel, nr_contract, IBAN, nr_min_ore, nr_max_ore, departament)
+    VALUES (p_email, p_cnp, p_nume, p_prenume, p_adresa, p_nr_tel, p_nr_contract, p_IBAN, p_nr_min_ore, p_nr_max_ore, p_departament);
+	ELSE
+        SELECT -1;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AdaugareStudent
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AdaugareStudent`(
+    IN p_email VARCHAR(45),
+    IN p_password VARCHAR(45),
+    IN p_cnp VARCHAR(45),
+    IN p_nume VARCHAR(45),
+    IN p_prenume VARCHAR(45),
+    IN p_adresa VARCHAR(45),
+    IN p_nr_tel VARCHAR(45),
+    IN p_nrContract INT,
+    IN p_IBAN VARCHAR(45),
+    IN p_an_studiu INT,
+    IN p_nr_ore INT
+)
+BEGIN
+    DECLARE student_count INT;
+
+    SELECT COUNT(*) INTO student_count
+    FROM student
+    WHERE email = p_email;
+
+    IF student_count = 0 THEN
+        INSERT INTO autentificare (email, parola) VALUES (p_email, p_password);
+
+        INSERT INTO student (CNP, nume, prenume, adresa, nr_tel, email, an_studiu, nr_ore, IBAN, nr_contract)
+        VALUES (p_cnp, p_nume, p_prenume, p_adresa, p_nr_tel, p_email, p_an_studiu, p_nr_ore, p_IBAN, p_nrContract);
+    ELSE
+        SELECT -1;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AfisareNoteStudent
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AfisareNoteStudent`(
+    IN p_email_student VARCHAR(45),
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    -- Declarațiile variabilelor
+    DECLARE p_id_student INT;
+    DECLARE p_id_curs INT;
+
+    -- Obținem id-ul studentului
+    SELECT id_student
+    INTO p_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+
+    -- Obținem id-ul cursului
+    SELECT id_curs
+    INTO p_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs
+    LIMIT 1;
+
+    -- Verificăm dacă studentul este înscris la curs
+    IF p_id_curs IS NOT NULL AND EXISTS (
+        SELECT 1
+        FROM inrolari_curs
+        WHERE id_student = p_id_student AND id_curs = p_id_curs
+    ) THEN
+        -- Afișăm notele pentru studentul la cursul respectiv
+        SELECT nota_curs, nota_seminar, nota_laborator, nota_finala
+        FROM note
+        WHERE id_student = p_id_student AND id_curs = p_id_curs;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AsignareNoteStudent
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AsignareNoteStudent`(
+    IN p_nume_curs VARCHAR(255),
+    IN v_id_student INT,
+    IN p_nota_curs INT,   
+    IN p_nota_semi INT,
+    IN p_nota_lab INT
+)
+BEGIN
+    DECLARE v_id_curs INT;
+
+    -- Obținem ID-ul cursului folosind denumirea
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs;
+
+    -- Verificăm dacă cursul și studentul există
+    IF v_id_curs IS NOT NULL AND v_id_student IS NOT NULL THEN
+        -- Actualizăm sau inserăm notele pentru student la cursul respectiv
+        INSERT INTO note (id_curs, id_student, nota_curs, nota_seminar, nota_laborator)
+        VALUES (v_id_curs, v_id_student, p_nota_curs, p_nota_semi, p_nota_lab)
+        ON DUPLICATE KEY UPDATE
+            nota_curs = VALUES(nota_curs),
+            nota_seminar = VALUES(nota_seminar),           
+            nota_laborator = VALUES(nota_laborator);
+
+
+        SELECT 'Notele au fost asignate cu succes.';
+    ELSE
+        SELECT 'Cursul sau studentul nu există.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Autentificare
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Autentificare`(
+    IN p_email VARCHAR(45),
+    IN p_password VARCHAR(45)
+)
+BEGIN
+    DECLARE v_user_count INT;
+
+    -- Verific daca mail-ul si parola se potrivesc
+    SELECT COUNT(*) INTO v_user_count
+    FROM autentificare
+    WHERE email = p_email AND parola = p_password;
+
+    -- Returnez 1 daca sunt autentificate, 0 altfel
+    IF v_user_count = 1 THEN
+        SELECT 1 AS 'Autentificat';
+    ELSE
+        SELECT 0 AS 'Neautentificat';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure CalculareNotaFinala
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculareNotaFinala`(
+    IN p_email_student VARCHAR(45),
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    -- Declarațiile variabilelor
+    DECLARE v_id_student INT;
+    DECLARE v_id_curs INT;
+    DECLARE v_nota_curs INT;
+    DECLARE v_nota_seminar INT;
+    DECLARE v_nota_laborator INT;
+    DECLARE v_procentaj_curs INT;
+    DECLARE v_procentaj_seminar INT;
+    DECLARE v_procentaj_laborator INT;
+    DECLARE v_nota_finala INT;
+
+    -- Obținem ID-ul studentului
+    SELECT id_student INTO v_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+
+    -- Obținem ID-ul cursului
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs
+    LIMIT 1;
+
+    -- Obținem notele pentru studentul la cursul respectiv
+    SELECT nota_curs, nota_seminar, nota_laborator
+    INTO v_nota_curs, v_nota_seminar, v_nota_laborator
+    FROM note
+    WHERE id_student = v_id_student AND id_curs = v_id_curs
+    LIMIT 1;
+
+    -- Obținem procentajele din tabela predare
+    SELECT procentaj_curs, procentaj_seminar, procentaj_laborator
+    INTO v_procentaj_curs, v_procentaj_seminar, v_procentaj_laborator
+    FROM predare
+    WHERE id_curs = v_id_curs
+    LIMIT 1;
+
+    -- Calculăm media ponderată
+    SET v_nota_finala = (
+        v_nota_curs * v_procentaj_curs +
+        v_nota_seminar * v_procentaj_seminar +
+        v_nota_laborator * v_procentaj_laborator
+    ) / 100;
+
+    -- Actualizăm nota_finala în tabela note
+    UPDATE note
+    SET nota_finala = v_nota_finala
+    WHERE id_student = v_id_student AND id_curs = v_id_curs;
+
+    -- Returnăm nota_finala
+    SELECT v_nota_finala AS 'NotaFinala';
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure InrolareActivitateGrup
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InrolareActivitateGrup`(
+    IN p_id_activitate INT,
+    IN p_email_student VARCHAR(255)
+)
+BEGIN
+    DECLARE v_id_grup INT;
+    DECLARE v_id_student INT;
+    DECLARE ok INT;
+    SET ok = 1;
+    
+    -- Obținem id-ul studentului
+    SELECT id_student
+    INTO v_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+
+    -- Obține id_grup pentru activitatea dată
+    SELECT id_grup
+    INTO v_id_grup
+    FROM activitati_grup
+    WHERE id_activitate = p_id_activitate;
+
+    -- Verifică dacă studentul este înrolat in grup
+    IF NOT EXISTS (
+        SELECT 1
+        FROM inrolari_grup
+        WHERE id_grup = v_id_grup AND id_student = v_id_student
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul nu este inscris in acest grup.';
+    ELSE
+
+    -- Verifică dacă studentul este deja înrolat la această activitate
+    IF EXISTS (
+        SELECT 1
+        FROM inrolare_activitati_grup
+        WHERE id_activitate = p_id_activitate AND id_student = v_id_student
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul este deja inscris la aceasta activitate.';
+    ELSE
+    
+    IF(ok = 1) THEN
+        INSERT INTO inrolare_activitati_grup (id_activitate, id_student)
+        VALUES (p_id_activitate, v_id_student);
+        SELECT 'Inscriere reusita.';
+        
+	END IF;
+	END IF;
+	END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure InrolareCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InrolareCurs`(
+    IN p_email_student VARCHAR(45),
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    DECLARE v_id_profesor INT;
+    DECLARE p_id_student INT;
+    DECLARE p_id_curs INT;
+    
+    SELECT id_student
+    INTO p_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+    
+    SELECT id_curs
+    INTO p_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs
+    LIMIT 1;
+    
+    -- Verificăm dacă studentul este deja înscris la cursul specificat
+    IF EXISTS(SELECT id_student
+    FROM inrolari_curs ic
+    where ic.id_student = p_id_student AND p_id_curs = ic.id_curs) 
+    THEN
+        SELECT 0;
+    ELSE
+        -- Verificăm dacă numărul maxim de studenți nu a fost atins
+        IF (
+            SELECT nr_studenti
+            FROM predare p
+            JOIN cursuri c ON p.id_curs = c.id_curs
+            WHERE c.denumire = p_nume_curs
+            ORDER BY nr_studenti ASC
+            LIMIT 1
+        ) < (
+            SELECT nr_max_studenti
+            FROM cursuri
+            WHERE denumire = p_nume_curs
+        ) THEN
+            -- Înrolăm studentul la profesorul cu cel mai mic nr_studenti
+            SELECT id_profesor INTO v_id_profesor
+            FROM predare p
+            JOIN cursuri c ON p.id_curs = c.id_curs
+            WHERE c.denumire = p_nume_curs
+            ORDER BY nr_studenti ASC
+            LIMIT 1;
+
+            -- Actualizăm numărul de studenți în tabela predare
+            UPDATE predare
+            SET nr_studenti = nr_studenti + 1
+            WHERE id_curs = (SELECT id_curs FROM cursuri WHERE denumire = p_nume_curs) AND id_profesor = v_id_profesor;
+
+            -- Înrolăm studentul la curs
+            INSERT INTO inrolari_curs (id_student, id_curs, id_profesor)
+            VALUES (p_id_student, p_id_curs, v_id_profesor);
+            SELECT 2;
+        ELSE
+            SELECT 1;
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure InrolareGrupStudiu
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InrolareGrupStudiu`(
+    IN p_email_student VARCHAR(45),
+    IN p_id_grup INT
+)
+BEGIN
+    DECLARE v_id_student INT;
+
+    -- Obține id-ul studentului folosind email-ul
+    SELECT id_student INTO v_id_student
+    FROM student
+    WHERE email = p_email_student;
+
+    -- Verifică dacă studentul există
+    IF v_id_student IS NOT NULL THEN
+        -- Verifică dacă studentul este deja înscris în grupul de studiu
+        IF NOT EXISTS (
+            SELECT 1
+            FROM inrolari_grup
+            WHERE id_student = v_id_student
+            AND id_grup = p_id_grup
+        ) THEN
+            -- Înrolează studentul în grupul de studiu
+            INSERT INTO inrolari_grup (id_student, id_grup)
+            VALUES (v_id_student, p_id_grup);
+
+            SELECT 'Studentul a fost inscris în grupul de studiu.' AS Mesaj;
+        ELSE
+            SELECT 'Studentul este deja inscris în grupul de studiu.' AS Mesaj;
+        END IF;
+    ELSE
+        SELECT 'Studentul nu exista.' AS Mesaj;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure InrolareProfesorLaCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InrolareProfesorLaCurs`(
+    IN p_nume_profesor VARCHAR(100),
+    IN p_prenume_profesor VARCHAR(100),
+    IN p_denumire_curs VARCHAR(255)
+)
+BEGIN
+    -- Obținem ID-ul profesorului folosind numele și prenumele
+    DECLARE v_id_profesor,  v_id_curs INT;
+    SELECT id_profesor INTO v_id_profesor
+    FROM profesor
+    WHERE nume = p_nume_profesor AND prenume = p_prenume_profesor;
+
+    -- Obținem ID-ul cursului folosind denumirea
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_denumire_curs;
+
+    IF v_id_profesor IS NOT NULL AND v_id_curs IS NOT NULL THEN
+        -- Verificăm dacă profesorul este deja înrolat la curs
+        IF NOT EXISTS (SELECT 1 FROM Predare WHERE id_profesor = v_id_profesor AND id_curs = v_id_curs) THEN
+            -- Adăugăm profesorul înrolat la curs
+            INSERT INTO predare (id_profesor, id_curs)
+            VALUES (v_id_profesor, v_id_curs);
+            INSERT INTO predare (nr_studenti)
+            VALUE (0);
+            SELECT 'Profesorul a fost înrolat cu succes la curs.';
+        ELSE
+            SELECT 'Profesorul este deja înrolat la curs.';
+        END IF;
+    ELSE
+        SELECT 'Profesorul sau cursul nu există.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure InrolareStudentActivitateCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InrolareStudentActivitateCurs`(
+    IN p_id_activitate INT,
+    IN p_email_student VARCHAR(255)
+)
+BEGIN
+    DECLARE v_id_curs INT;
+    DECLARE v_id_profesor INT;
+    DECLARE v_id_student INT;
+    DECLARE ok INT;
+    SET ok = 1;
+    
+    -- Obținem id-ul studentului
+    SELECT id_student
+    INTO v_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+
+    -- Obține id_curs și id_profesor pentru activitatea dată
+    SELECT id_curs, id_profesor
+    INTO v_id_curs, v_id_profesor
+    FROM activitati_curs
+    WHERE id_activitate = p_id_activitate;
+
+    -- Verifică dacă studentul este înrolat la curs
+    IF NOT EXISTS (
+        SELECT 1
+        FROM inrolari_curs
+        WHERE id_curs = v_id_curs AND id_student = v_id_student
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul nu este inscris la acest curs.';
+    ELSE
+
+    -- Verifică dacă studentul este înrolat la profesorul activității
+    IF NOT EXISTS (
+        SELECT 1
+        FROM inrolari_curs
+        WHERE id_profesor = v_id_profesor AND id_student = v_id_student
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul nu este inscris la acest profesor.';
+    ELSE
+
+    -- Verifică dacă studentul este deja înrolat la această activitate
+    IF EXISTS (
+        SELECT 1
+        FROM inrolare_activitati
+        WHERE id_activitate = p_id_activitate AND id_student = v_id_student
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul este deja inscris la aceasta activitate.';
+    ELSE
+
+	-- Verifică dacă există suprapuneri cu alte activități la care studentul este înscris
+    IF EXISTS (
+        SELECT 1
+        FROM inrolare_activitati ia
+        JOIN activitati_curs ac ON ia.id_activitate = ac.id_activitate
+        WHERE ia.id_student = v_id_student
+        AND ac.id_activitate != p_id_activitate
+        AND ac.ziua = (SELECT ziua FROM activitati_curs WHERE id_activitate = p_id_activitate)
+        AND (
+            (ac.ora_inceput >= (SELECT ora_inceput FROM activitati_curs WHERE id_activitate = p_id_activitate) AND
+             ac.ora_inceput < (SELECT ora_sfarsit FROM activitati_curs WHERE id_activitate = p_id_activitate)) OR
+            (ac.ora_sfarsit > (SELECT ora_inceput FROM activitati_curs WHERE id_activitate = p_id_activitate) AND
+             ac.ora_sfarsit <= (SELECT ora_sfarsit FROM activitati_curs WHERE id_activitate = p_id_activitate))
+        )
+    ) THEN
+        SET ok = 0;
+        SELECT 'Studentul este deja inscris la o alta activitate care se suprapune cu aceasta.';
+    ELSE
+    
+    IF(ok = 1) THEN
+        INSERT INTO inrolare_activitati (id_activitate, id_student)
+        VALUES (p_id_activitate, v_id_student);
+        SELECT 'Inscriere reusita.';
+    END IF;
+	END IF;
+	END IF;
+	END IF;
+	END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure MembriGrup
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `MembriGrup`(
+	IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+	DECLARE p_id_curs INT;
+    
+	SELECT id_curs
+    INTO p_id_curs
+    FROM cursuri c
+    WHERE c.denumire = p_nume_curs;
+	
+    SELECT s.nume, s.prenume FROM student s
+    JOIN inrolari_grup ig ON s.id_student = ig.id_student
+    JOIN grupuri_studiu gs ON gs.id_grup = ig.id_grup
+    JOIN cursuri c on c.id_curs = gs.id_curs
+    WHERE c.id_curs = p_id_curs;
+
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Mesaje
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Mesaje`(
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    DECLARE p_id_curs INT;
+    
+    -- Obține id-ul cursului pe baza numelui furnizat
+    SELECT id_curs INTO p_id_curs
+    FROM cursuri c
+    WHERE c.denumire = p_nume_curs;
+    
+    -- Selectează numele și prenumele studenților și mesajele asociate cursului specificat, ordonate după ID
+    SELECT s.nume, s.prenume, m.mesaj, m.data
+    FROM student s
+    JOIN inrolari_grup ig ON s.id_student = ig.id_student
+    JOIN grupuri_studiu gs ON gs.id_grup = ig.id_grup
+    JOIN cursuri c ON c.id_curs = gs.id_curs
+    JOIN mesaje m ON m.id_student = s.id_student
+    WHERE c.id_curs = p_id_curs
+    ORDER BY m.id_mesaj;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure ProfesoriCuCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ProfesoriCuCurs`(
+    IN p_denumire_curs VARCHAR(255)
+)
+BEGIN
+    -- Obținem ID-ul cursului folosind denumirea
+    DECLARE v_id_curs INT;
+    SELECT id_curs INTO v_id_curs FROM cursuri WHERE denumire = p_denumire_curs;
+
+    IF v_id_curs IS NOT NULL THEN
+        -- Obținem profesorii care predau cursul
+        SELECT P.id_profesor, P.nume, P.prenume
+        FROM profesor P
+        INNER JOIN predare PR ON P.id_profesor = PR.id_profesor
+        WHERE PR.id_curs = v_id_curs;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure RenuntareActivitateCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RenuntareActivitateCurs`(
+    IN p_id_activitate INT,
+    IN p_email_student VARCHAR(255)
+)
+BEGIN
+	DECLARE p_id_student INT;
+    
+    SELECT id_student
+    INTO p_id_student
+    FROM inrolare_activitati
+    WHERE id_activitate = p_id_activitate;
+    
+    -- Verifică dacă studentul este înrolat la această activitate
+    IF (SELECT p_id_student IS NULL) THEN
+        SELECT 'Studentul nu este inscris la aceasta activitate.';
+    ELSE
+        -- Renunță la activitate
+        DELETE FROM inrolare_activitati
+        WHERE id_activitate = p_id_activitate AND id_student = p_id_student;
+        SELECT 'Renuntare reusita.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure RenuntareActivitateGrup
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RenuntareActivitateGrup`(
+    IN p_email_student VARCHAR(45),
+    IN p_id_activitate INT
+)
+BEGIN
+    DECLARE v_id_student INT;
+
+    -- Obține id-ul studentului folosind email-ul
+    SELECT id_student INTO v_id_student
+    FROM student
+    WHERE email = p_email_student;
+
+    -- Verifică dacă studentul există
+    IF v_id_student IS NOT NULL THEN
+        -- Verifică dacă studentul este înscris în activitatea de grup
+        IF EXISTS (
+            SELECT 1
+            FROM inrolare_activitati_grup
+            WHERE id_student = v_id_student
+            AND id_activitate = p_id_activitate
+        ) THEN
+            -- Șterge înregistrarea de înrolare
+            DELETE FROM inrolare_activitati_grup
+            WHERE id_student = v_id_student
+            AND id_activitate = p_id_activitate;
+
+            SELECT 'Renuntare reusita.' AS Mesaj;
+        ELSE
+            SELECT 'Studentul nu este inscris in activitatea de grup.' AS Mesaj;
+        END IF;
+    ELSE
+        SELECT 'Studentul nu există.' AS Mesaj;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure RenuntareCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RenuntareCurs`(
+    IN p_email_student VARCHAR(45),
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    DECLARE p_id_profesor INT;
+    DECLARE p_id_student INT;
+	DECLARE p_id_curs INT;
+
+    -- Obținem id-ul profesorului pentru cursul respectiv
+    SELECT pr.id_profesor
+    INTO p_id_profesor
+    FROM predare pr
+    JOIN cursuri c ON c.id_curs = pr.id_curs
+    WHERE c.denumire = p_nume_curs
+    LIMIT 1;
+
+    -- Obținem id-ul studentului
+    SELECT id_student
+    INTO p_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+    
+    -- Obținem id-ul cursului
+    SELECT id_curs
+    INTO p_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs
+    LIMIT 1;
+
+    IF (SELECT id_student
+    FROM inrolari_curs ic
+    where ic.id_student = p_id_student AND p_id_curs = ic.id_curs IS NOT NULL)
+    THEN
+    
+        -- Eliminăm înregistrarea din tabela inrolari_curs pentru studentul respectiv
+        DELETE FROM inrolari_curs
+        WHERE id_student = p_id_student AND id_curs IN (SELECT id_curs FROM cursuri WHERE denumire = p_nume_curs);
+
+        -- Actualizăm numărul de studenți în tabela predare pentru profesorul respectiv
+        UPDATE predare
+        SET nr_studenti = nr_studenti - 1
+        WHERE id_profesor = p_id_profesor AND id_curs IN (SELECT id_curs FROM cursuri WHERE denumire = p_nume_curs);
+
+        SELECT 2 AS 'Status'; -- RENUNȚARE REUȘITĂ
+    ELSE
+        SELECT 1 AS 'Status'; -- STUDENTUL NU ESTE ÎNROLAT LA ACEST CURS
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure RenuntareGrupStudiu
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RenuntareGrupStudiu`(
+    IN p_email_student VARCHAR(45),
+    IN p_id_grup INT
+)
+BEGIN
+    DECLARE v_id_student INT;
+
+    -- Obține id-ul studentului folosind email-ul
+    SELECT id_student INTO v_id_student
+    FROM student
+    WHERE email = p_email_student;
+
+    -- Verifică dacă studentul există
+    IF v_id_student IS NOT NULL THEN
+        -- Verifică dacă studentul este înscris în grupul de studiu
+        IF EXISTS (
+            SELECT 1
+            FROM inrolari_grup
+            WHERE id_student = v_id_student
+            AND id_grup = p_id_grup
+        ) THEN
+            -- Renunță la grupul de studiu
+            DELETE FROM inrolari_grup
+            WHERE id_student = v_id_student
+            AND id_grup = p_id_grup;
+
+            SELECT 'Renuntare reusita.';
+        ELSE
+            SELECT 'Studentul nu este inscris in grupul de studiu.';
+        END IF;
+    ELSE
+        SELECT 'Studentul nu exista.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure StergereUtilizatorDupaEmail
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `StergereUtilizatorDupaEmail`(
+    IN admin_e VARCHAR(45),
+    IN p_email VARCHAR(45)
+)
+BEGIN    
+    -- Șterge detaliile din tabelul administrator
+    IF ((SELECT email FROM administrator WHERE email= p_email  limit 1) is not null) THEN 
+		IF ((SELECT super_admin FROM administrator WHERE email = admin_e limit 1) = 1) THEN
+			DELETE FROM autentificare WHERE email = p_email;
+			DELETE FROM administrator WHERE email = p_email;
+			SELECT 'Stergere efectuata cu succes' ;
+		ELSE
+			SELECT 'Nu poți modifica un administrator!' ;
+		END IF;
+	ELSE 
+		-- Șterge detaliile din tabelul student
+		DELETE FROM student WHERE email = p_email;
+		-- Șterge detaliile din tabelul profesor
+		DELETE FROM profesor WHERE email = p_email;
+		DELETE FROM autentificare WHERE email = p_email;
+
+        SELECT 'Stergere efectuata cu succes' ;
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure StudentiCuCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `StudentiCuCurs`(
+    IN p_denumire_curs VARCHAR(255)
+)
+BEGIN
+    -- Obținem ID-ul cursului folosind denumirea
+    DECLARE v_id_curs INT;
+    SELECT id_curs INTO v_id_curs FROM cursuri WHERE denumire = p_denumire_curs;
+
+    IF v_id_curs IS NOT NULL THEN
+        -- Obținem profesorii care predau cursul
+        SELECT S.id_student, S.nume, S.prenume
+        FROM student S
+        INNER JOIN inrolari_curs IC ON S.id_student = IC.id_student
+        WHERE IC.id_curs = v_id_curs;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure StudentiProfesoriLaCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `StudentiProfesoriLaCurs`(
+    IN p_email_profesor VARCHAR(255),
+    IN p_denumire_curs VARCHAR(255)
+)
+BEGIN
+    -- Obținem ID-ul profesorului folosind emailul
+    DECLARE v_id_profesor INT;
+    DECLARE v_id_curs INT;
+    DECLARE v_count INT;
+    SELECT id_profesor INTO v_id_profesor FROM profesor WHERE email = p_email_profesor;
+
+    -- Verificăm dacă profesorul există
+    IF v_id_profesor IS NOT NULL THEN
+        -- Obținem ID-ul cursului folosind denumirea
+        SELECT id_curs INTO v_id_curs FROM cursuri WHERE denumire = p_denumire_curs;
+
+        -- Verificăm dacă cursul există
+        IF v_id_curs IS NOT NULL THEN
+            -- Verificăm dacă profesorul predă cursul            
+            SELECT COUNT(*) INTO v_count
+            FROM predare
+            WHERE id_profesor = v_id_profesor AND id_curs = v_id_curs;
+
+            -- Dacă profesorul predă cursul, obținem studenții înscriși
+            IF v_count > 0 THEN
+                SELECT S.id_student, S.nume, S.prenume
+                FROM student S
+                INNER JOIN inrolari_curs IC ON S.id_student = IC.id_student
+                WHERE IC.id_curs = v_id_curs;
+            END IF;
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure TipActivitatiCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TipActivitatiCurs`(
+    IN p_nume_curs VARCHAR(255),
+    OUT p_curs INT,
+    OUT p_semi INT,
+    OUT p_lab INT
+)
+BEGIN
+    DECLARE v_id_curs INT;
+
+    -- Obținem ID-ul cursului folosind denumirea
+    SELECT id_curs INTO v_id_curs
+    FROM cursuri
+    WHERE denumire = p_nume_curs;
+
+    IF v_id_curs IS NOT NULL THEN
+        -- Actualizăm tabela predare cu valorile primite
+        select curs, seminar, laborator 
+        into p_curs, p_semi, p_lab
+        from predare
+        WHERE id_curs = v_id_curs limit 1;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VerificaTipUtilizator
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VerificaTipUtilizator`(
+    IN p_email VARCHAR(45)
+)
+BEGIN
+    DECLARE tip_student INT;
+    DECLARE tip_profesor INT;
+    DECLARE tip_administrator INT;
+    DECLARE tip_superadmin INT;
+
+    -- Verifică dacă emailul aparține unui student
+    SELECT COUNT(*) INTO tip_student
+    FROM student
+    WHERE email = p_email;
+
+    -- Verifică dacă emailul aparține unui profesor
+    SELECT COUNT(*) INTO tip_profesor
+    FROM profesor
+    WHERE email = p_email;
+
+    -- Verifică dacă emailul aparține unui administrator
+    SELECT COUNT(*) INTO tip_administrator
+    FROM administrator
+    WHERE email = p_email;
+
+    -- Verifică dacă emailul aparține unui superadmin
+    SELECT COUNT(*) INTO tip_superadmin
+    FROM administrator
+    WHERE email = p_email AND super_admin = 1;
+
+    -- Returnează rezultatul în funcție de tipul utilizatorului
+    IF tip_student > 0 THEN
+        SELECT 0;
+    ELSEIF tip_profesor > 0 THEN
+        SELECT 1;
+    ELSEIF tip_superadmin > 0 THEN
+        SELECT 3;
+    ELSEIF tip_administrator > 0 THEN
+        SELECT 2;
+    ELSE
+        SELECT -1; -- Utilizatorul nu a fost găsit în nicio categorie
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareActivitatiCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareActivitatiCurs`(
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    SELECT 
+		ac.id_activitate,
+        ac.tip_activitate, 
+        ac.ziua, 
+        ac.ora_inceput, 
+        ac.ora_sfarsit, 
+        ac.nr_max_participanti, 
+        CONCAT(p.nume, ' ', p.prenume) AS nume_profesor
+    FROM activitati_curs ac
+    INNER JOIN profesor p ON ac.id_profesor = p.id_profesor
+    WHERE ac.id_curs = (SELECT id_curs FROM cursuri WHERE denumire = p_nume_curs);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareActivitatiGrupStudent
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareActivitatiGrupStudent`(IN p_email_student VARCHAR(255))
+BEGIN
+    DECLARE v_id_student INT;
+
+    -- Obținem id-ul studentului
+    SELECT id_student
+    INTO v_id_student
+    FROM student
+    WHERE email = p_email_student
+    LIMIT 1;
+	
+	-- Selectează detalii despre activitățile grupului de studiu
+	SELECT ac.id_activitate, (SELECT denumire FROM cursuri c
+    JOIN grupuri_studiu gs
+    JOIN inrolari_grup i
+    WHERE c.id_curs = gs.id_curs AND i.id_student = v_id_student 
+    LIMIT 1) AS Curs, 
+    ac.id_grup, ac.descriere, ac.data, ac.nr_min_participanti, durata
+	FROM activitati_grup ac
+    JOIN inrolare_activitati_grup ig
+	WHERE ig.id_student = v_id_student;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareActivitatiGrupStudiu
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareActivitatiGrupStudiu`(IN cursNume VARCHAR(255))
+BEGIN
+    DECLARE cursID INT;
+    DECLARE grupID INT;
+    DECLARE numarStudenti INT;
+
+    -- Obține ID-ul cursului în funcție de nume
+    SELECT id_curs INTO cursID FROM cursuri WHERE denumire = cursNume;
+
+	-- Obține ID-ul grupului de studiu asociat cursului
+	SELECT id_grup INTO grupID FROM grupuri_studiu WHERE id_curs = cursID;
+
+	-- Calculează numărul de studenți înscriși în grupul de studiu
+	SELECT COUNT(*) INTO numarStudenti
+	FROM inrolari_grup
+	WHERE id_grup = grupID;
+
+	-- Selectează detalii despre activitățile grupului de studiu și numărul de studenți
+	SELECT ac.id_activitate, ac.id_grup, ac.descriere, ac.data, ac.nr_min_participanti, durata, numarStudenti
+	FROM activitati_grup ac
+	WHERE ac.id_grup = grupID;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareActivitatiProfesor
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareActivitatiProfesor`(
+    IN p_email_prof VARCHAR(45),
+    IN p_denumire_curs VARCHAR(45)
+)
+BEGIN
+    -- Obține id-ul profesorului pe baza emailului furnizat
+    DECLARE p_id_prof INT;
+    DECLARE p_id_curs INT;
+    SELECT id_profesor INTO p_id_prof
+    FROM profesor
+    WHERE email = p_email_prof;
+
+    -- Obține id-ul cursului pe baza denumirii furnizate
+    
+    SELECT id_curs INTO p_id_curs
+    FROM cursuri
+    WHERE denumire = p_denumire_curs;
+
+    -- Selectează activitățile cursului specificat pentru profesorul specificat
+    SELECT ac.id_activitate, c.denumire AS denumire_curs, ac.tip_activitate, ac.ziua, ac.ora_inceput, ac.ora_sfarsit,ac.nr_max_participanti
+    FROM activitati_curs ac
+    JOIN cursuri c ON ac.id_curs = c.id_curs
+    WHERE ac.id_profesor = p_id_prof AND ac.id_curs = p_id_curs;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareActivitatiStudent
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareActivitatiStudent`(
+    IN p_email_student VARCHAR(45)
+)
+BEGIN
+    DECLARE v_student_id INT;
+    
+    -- Obținem ID-ul studentului folosind adresa de email
+    SELECT id_student INTO v_student_id
+    FROM student
+    WHERE email = p_email_student;
+    
+    -- Afișăm activitățile la care este înscris studentul
+    
+    SELECT activitati_curs.tip_activitate, activitati_curs.ziua, activitati_curs.ora_inceput, activitati_curs.ora_sfarsit, activitati_curs.nr_max_participanti, CONCAT(p.nume, ' ', p.prenume) AS nume_profesor
+    FROM activitati_curs
+    INNER JOIN inrolare_activitati ia ON activitati_curs.id_activitate = ia.id_activitate
+    INNER JOIN profesor p ON activitati_curs.id_profesor = p.id_profesor
+    WHERE ia.id_student = v_student_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareDatePersonale
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareDatePersonale`(
+    IN p_email VARCHAR(45)
+)
+BEGIN
+    DECLARE tip_utilizator VARCHAR(45);
+
+    -- Verificăm dacă adresa de email aparține unui student
+    IF EXISTS (SELECT 1 FROM student WHERE email = p_email) THEN
+        SET tip_utilizator = 'student';
+    -- Altfel, verificăm dacă adresa de email aparține unui profesor
+    ELSEIF EXISTS (SELECT 1 FROM profesor WHERE email = p_email) THEN
+        SET tip_utilizator = 'profesor';
+	ELSEIF EXISTS (SELECT 1 FROM administrator WHERE email = p_email) THEN
+        SET tip_utilizator = 'administrator';
+        -- Adresa de email nu a fost găsită în niciun tabel
+    END IF;
+
+    -- Dacă adresa de email a fost găsită, afișăm datele personale
+    CASE
+        WHEN tip_utilizator = 'student' THEN
+            SELECT * FROM student WHERE email = p_email;
+        WHEN tip_utilizator = 'profesor' THEN
+            SELECT * FROM profesor WHERE email = p_email;
+		WHEN tip_utilizator = 'administrator' THEN
+            SELECT * FROM administrator WHERE email = p_email;
+    END CASE;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareDetaliiCurs
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareDetaliiCurs`(
+    IN p_nume_curs VARCHAR(45)
+)
+BEGIN
+    DECLARE v_count INT;
+    DECLARE p_exists INT;
+
+    SELECT COUNT(*) INTO v_count
+    FROM cursuri
+    WHERE denumire = p_nume_curs;
+
+	IF v_count > 0 THEN
+		SET p_exists = 1;
+    ELSE
+		SET p_exists = 0;
+    END IF;
+    
+    IF p_exists = 1 THEN
+        SELECT *
+        FROM cursuri
+        WHERE denumire = p_nume_curs;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure VizualizareUtilizatori
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `VizualizareUtilizatori`(
+    IN p_filtru INT
+)
+BEGIN
+    -- Selecția corectă în funcție de filtru
+    IF p_filtru = 0 THEN
+        -- Selecție pentru student
+        SELECT id_student, nume, prenume, email, cnp, adresa, nr_tel, iban, nr_contract
+        FROM student;
+    ELSEIF p_filtru = 1 THEN
+        -- Selecție pentru profesor
+        SELECT id_profesor, nume, prenume, email, cnp, adresa, nr_tel, iban, nr_contract
+        FROM profesor;
+    ELSEIF p_filtru = 2 THEN
+        -- Selecție pentru administrator
+        SELECT id_admin, nume, prenume, email, cnp, adresa, nr_tel, iban, nr_contract
+        FROM administrator;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure actualizareDatePersonale
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizareDatePersonale`(
+    IN admin_e VARCHAR(255),
+    IN p_email VARCHAR(45),
+    IN p_nume VARCHAR(255),
+    IN p_prenume VARCHAR(255),
+    IN p_cnp VARCHAR(13),
+    IN p_adresa VARCHAR(255),
+    IN p_numar_telefon VARCHAR(15),
+    IN p_iban VARCHAR(30),
+    IN p_numar_contract VARCHAR(20)
+)
+BEGIN
+    DECLARE trebuie_actualizat BOOLEAN DEFAULT FALSE;
+
+    -- Verifică dacă emailul există în tabel
+    IF EXISTS (SELECT * FROM student WHERE email = p_email) THEN
+        -- Verifică și actualizează datele utilizatorului
+        IF p_nume IS NOT NULL AND p_nume <> (SELECT nume FROM student WHERE email = p_email) THEN
+            UPDATE student SET nume = p_nume WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_prenume IS NOT NULL AND p_prenume <> (SELECT prenume FROM student WHERE email = p_email) THEN
+            UPDATE student SET prenume = p_prenume WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_cnp IS NOT NULL AND p_cnp <> (SELECT cnp FROM student WHERE email = p_email) THEN
+            UPDATE student SET cnp = p_cnp WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_adresa IS NOT NULL AND p_adresa <> (SELECT adresa FROM student WHERE email = p_email) THEN
+            UPDATE student SET adresa = p_adresa WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_numar_telefon IS NOT NULL AND p_numar_telefon <> (SELECT nr_tel FROM student WHERE email = p_email) THEN
+            UPDATE student SET nr_tel = p_numar_telefon WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_iban IS NOT NULL AND p_iban <> (SELECT iban FROM student WHERE email = p_email) THEN
+            UPDATE student SET iban = p_iban WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_numar_contract != 0 AND p_numar_contract <> (SELECT nr_contract FROM student WHERE email = p_email) THEN
+            UPDATE student SET nr_contract = p_numar_contract WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF trebuie_actualizat THEN
+            SELECT 'Date actualizate cu succes.';
+        ELSE
+            SELECT 'Nu s-au efectuat modificări.';
+        END IF;
+        
+    ELSEIF EXISTS (SELECT * FROM profesor WHERE email = p_email) THEN
+        -- Verifică și actualizează datele utilizatorului
+        IF p_nume IS NOT NULL AND p_nume <> (SELECT nume FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET nume = p_nume WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_prenume IS NOT NULL AND p_prenume <> (SELECT prenume FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET prenume = p_prenume WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_cnp IS NOT NULL AND p_cnp <> (SELECT cnp FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET cnp = p_cnp WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_adresa IS NOT NULL AND p_adresa <> (SELECT adresa FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET adresa = p_adresa WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_numar_telefon IS NOT NULL AND p_numar_telefon <> (SELECT nr_tel FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET nr_tel = p_numar_telefon WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_iban IS NOT NULL AND p_iban <> (SELECT iban FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET iban = p_iban WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF p_numar_contract != 0 AND p_numar_contract <> (SELECT nr_contract FROM profesor WHERE email = p_email) THEN
+            UPDATE profesor SET nr_contract = p_numar_contract WHERE email = p_email;
+            SET trebuie_actualizat = TRUE;
+        END IF;
+
+        IF trebuie_actualizat THEN
+            SELECT 'Date actualizate cu succes.';
+        ELSE
+            SELECT 'Nu s-au efectuat modificări.';
+        END IF;
+        
+    ELSEIF EXISTS (SELECT * FROM administrator WHERE email = p_email) THEN
+        IF ((SELECT super_admin FROM administrator WHERE email = admin_e) = 1) THEN
+            -- Verifică și actualizează datele utilizatorului
+            IF p_nume IS NOT NULL AND p_nume <> (SELECT nume FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET nume = p_nume WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_prenume IS NOT NULL AND p_prenume <> (SELECT prenume FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET prenume = p_prenume WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_cnp IS NOT NULL AND p_cnp <> (SELECT cnp FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET cnp = p_cnp WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_adresa IS NOT NULL AND p_adresa <> (SELECT adresa FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET adresa = p_adresa WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_numar_telefon IS NOT NULL AND p_numar_telefon <> (SELECT nr_tel FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET nr_tel = p_numar_telefon WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_iban IS NOT NULL AND p_iban <> (SELECT iban FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET iban = p_iban WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF p_numar_contract != 0 AND p_numar_contract <> (SELECT nr_contract FROM administrator WHERE email = p_email) THEN
+                UPDATE administrator SET nr_contract = p_numar_contract WHERE email = p_email;
+                SET trebuie_actualizat = TRUE;
+            END IF;
+
+            IF trebuie_actualizat THEN
+                SELECT 'Date actualizate cu succes.';
+            ELSE
+                SELECT 'Nu s-au efectuat modificări.';
+            END IF;
+
+        ELSE 
+            SELECT 'Nu poți modifica un administrator!';
+        END IF;
+        
+    ELSE 
+        SELECT 'Nu s-au efectuat modificări.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure cautareUtilizator
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `proiect`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cautareUtilizator`(
+	-- IN filtru INT,
+    IN p_nume VARCHAR(45),
+    IN p_prenume VARCHAR(45)
+)
+BEGIN
+    DECLARE user_email VARCHAR(45);
+    
+	-- IF filtru= 0 THEN
+    -- Search in student table
+    SELECT email
+    INTO user_email
+    FROM student
+    WHERE nume = p_nume AND prenume = p_prenume
+    LIMIT 1;      
+    -- END IF;
+
+	-- IF filtru= 1 THEN
+    -- If not found in student table, search in profesor table
+    IF user_email IS NULL THEN
+        SELECT email
+        INTO user_email
+        FROM profesor
+        WHERE nume = p_nume AND prenume = p_prenume
+        LIMIT 1;
+    END IF;
+	-- END IF;
+	
+    -- IF filtru= 2 THEN
+    -- If not found in profesor table, search in administrator table
+    IF user_email IS NULL THEN
+        SELECT email
+        INTO user_email
+        FROM administrator
+        WHERE nume = p_nume AND prenume = p_prenume
+        LIMIT 1;
+    END IF;
+	-- END IF;
+     
+    -- If no email found, return a message
+    IF user_email IS NULL THEN
+        SELECT 'Nu s-au gasit detalii pentru utilizatorul specificat.';
+    ELSE
+        SELECT user_email;
+    END IF;
+END$$
+
+DELIMITER ;
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
